@@ -1,15 +1,18 @@
-<script src="./js/sonify.js"></script>
-<style>
-    #text-container {
-        margin: auto;
-        width: 800px;
-        height: 80px;
-        text-align: center;
-    }
-    #text {
-        margin: 0;
-    }
-</style>
+---
+title: Sonify
+---
+
+---
+
+<br>
+
+# Type Something!
+
+<div id="text-container"><h4 id="text"></h4></div>
+
+---
+
+<br>
 
 # Welcome to the Sonify program!
 
@@ -22,9 +25,17 @@ More precisely, the algorithm is currently as follows:
 - If a consonant is typed, a pitch between A5 and B8 is chosen at random, and spontaneous pings are generated over time.
   - The pings for a pitch occur around 0.5 - 3.5 seconds after its previous ping.
   - The pitch will stop pinging when the letter that created it is removed.
-  
----
 
-### Type Something!
+<script src="./js/sonify.js"></script>
+<style>
+    #text-container {
+        margin: auto;
+        width: 50%;
+        height: 80px;
+        text-align: center;
+    }
+    #text {
+        margin: 0;
+    }
+</style>
 
-<div id="text-container"><p id="text"></p></div>

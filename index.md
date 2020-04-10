@@ -1,4 +1,12 @@
+---
+title: Home
+layout: home
+---
+
+Week 3 assignment: [_Type Your Name to Play Sounds_]({{ site.baseurl }}{% link sonify.md %})
+
+<br>
+
 ```javascript
-console.log("Welcome to my project page!")
-console.log("Interesting things coming soon :D")
+console.log("More coming soon! :D")
 ```
