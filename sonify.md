@@ -7,6 +7,20 @@
     }
 </style>
 
-## Type Something!
+# Welcome to the Sonify program!
 
-<div id="text-container"><h3 id="text"></h3></div>
+Here, we create sound from text. There are two main factors that influence the created sound: the vowels in the text, and the length of the text.
+
+More precisely, the algorithm is currently as follows:
+- If a vowel is typed, a note from the A9 chord is sustained (with _a_ corresponding to A, _e_ to C#, etc.)
+  - Adding the same vowel again will not change the sound.
+  - The note is removed once all instances of the vowel have been deleted.
+- If a consonant is typed, a pitch between A5 and B8 is chosen at random, and spontaneous pings are generated over time.
+  - The pings for a pitch occur around 0.5 - 3.5 seconds after its previous ping.
+  - The pitch will stop pinging when the letter that created it is removed.
+  
+---
+
+### Type Something!
+
+<div id="text-container"><p id="text"></p></div>
