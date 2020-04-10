@@ -3,7 +3,11 @@
     #text-container {
         margin: auto;
         width: 800px;
+        height: 80px;
         text-align: center;
+    }
+    #text {
+        margin: 0;
     }
 </style>
 
