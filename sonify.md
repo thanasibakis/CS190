@@ -1,14 +1,12 @@
-layout: page
-title: "Sonifying Text"
-permalink: /sonify/
-
 <script src="./js/sonify.js"></script>
 <style>
-    h3 {
-        align: center;
+    #text-container {
+        margin: auto;
+        width: 800px;
+        text-align: center;
     }
 </style>
 
 ## Type Something!
 
-<h3 id="text"></h3>
+<div id="text-container"><h3 id="text"></h3></div>
