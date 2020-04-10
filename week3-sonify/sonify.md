@@ -1,5 +1,6 @@
 ---
 title: Sonify
+permalink: /sonify
 ---
 
 ---
