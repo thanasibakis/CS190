@@ -23,7 +23,7 @@ let long_tone_nodes = {}
 let add_letter = (letter) => {
     if (letter in VOWELS)
         add_long_tone(VOWELS[letter])
-    else {
+    else if (letter in CONSONANTS) {
         frequency = NOTES[CONSONANTS.indexOf(letter)]
         short_tones.push(frequency)
         play_short_tone(frequency, delay = 0)
