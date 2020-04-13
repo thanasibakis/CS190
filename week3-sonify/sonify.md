@@ -8,28 +8,29 @@ permalink: /sonify
 <style>
     #text-container {
         margin: auto;
-        width: 50%;
+        width: 100%;
+        padding: 40px 0 0 0;
         height: 80px;
         text-align: center;
+        background: #f9f9f9;
+        overflow: hidden;
     }
     #text {
         margin: 0;
     }
 </style>
 
----
+> to map data to sound in order to allow listeners to interpret it in an auditory manner ([Wiktionary](https://en.wiktionary.org/wiki/sonify))
 
-<br>
+&nbsp;
 
-# Type your name!
+### Type your name
 
 <div id="text-container"><h4 id="text"></h4></div>
 
----
+&nbsp;
 
-<br>
-
-## Here, we create sound from text.
+### The algorithm
 
 If a vowel is typed, a note from the [A Major9](https://pianochord.com/A-major-7th/variation/A-major-9th-5th) chord is sustained.
 

@@ -1,11 +1,12 @@
 ---
-title: Overview
+title: Home
 ---
 
 Week 3
+
 - Assignment: [_Type Your Name to Play Sounds_]({{ site.baseurl }}{% link week3-sonify/sonify.md %})
 
-<br>
+&nbsp;
 
 ```javascript
 console.log("More coming soon! :D")

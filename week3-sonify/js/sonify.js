@@ -23,7 +23,7 @@ let long_tone_nodes = {}
 let add_letter = (letter) => {
     if (letter in VOWELS)
         add_long_tone(VOWELS[letter])
-    else if (letter in CONSONANTS) {
+    else if (CONSONANTS.includes(letter)) {
         frequency = NOTES[CONSONANTS.indexOf(letter)]
         short_tones.push(frequency)
         play_short_tone(frequency, delay = 0)
@@ -102,6 +102,6 @@ document.addEventListener("keydown", (event) => {
     } else if (event.key.length === 1) { // aka is this an actual char and not "shift", etc.
         document.getElementById("text").innerHTML += event.key
 
-        add_letter(event.key)
+        add_letter(event.key.toLowerCase())
     }
 })
