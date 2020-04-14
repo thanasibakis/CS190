@@ -40,7 +40,7 @@ If a vowel is typed, a note from the [A Major9](https://pianochord.com/A-major-7
 
 If a consonant is typed, a pitch between A5 and B8 is chosen, and spontaneous chimes of that pitch are generated over time.
 
-- Specifically, each consonant is assigned a pitch such that the [less frequent the letter is used in English](https://en.wikipedia.org/wiki/Letter_frequency), the higher the frequency of the pitch.
+- Specifically, each consonant is assigned a pitch such that the [less frequently the letter is used in English](https://en.wikipedia.org/wiki/Letter_frequency), the higher the frequency of the pitch.
 - A chime for a pitch occurs when the letter is typed, and from there, at a random time up to 3 seconds after that pitch's previous chime.
 - Adding the same consonant twice will schedule twice as many chimes for that pitch.
 - New chimes for that pitch will stop being scheduled when the corresponding letter is removed.
