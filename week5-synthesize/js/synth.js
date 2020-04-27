@@ -8,6 +8,7 @@ const keymap = {
     'l': 415.30,
     ';': 440
 }
+whichKeyWasPressed = (event) => event.key.toLowerCase().replace(':', ';')
 
 const context = new AudioContext()
 
@@ -20,25 +21,22 @@ let previousKey = null
 
 document.onkeydown = (event) => {
     // Determine the frequency of the note to play
-    const key = event.key.toLowerCase()
+    const key = whichKeyWasPressed(event)
     let frequency = keymap[key]
 
     // The spacebar represents a half-step up from the previous note,
     // to be used like a grace note, if pressed while the previous key
     // is still being held
     if (key === ' ')
-        frequency = keymap[previousKey] * Math.pow(2, 1/12)
+        frequency = keymap[previousKey] * Math.pow(2, 1 / 12)
+    
+    // The shift key brings the note an octave up
+    if (event.shiftKey)
+        frequency *= 2
 
-    // If the key corresponds to an actual note, play it
-    if (frequency) {
-        console.log(frequency)
-        // The shift key brings the note an octave up
-        const octaveMultiplier = event.shiftKey ? 2 : 1
-
-        // If this KeyboardEvent is not the result of the key being held down,
-        // play the note
-        if (key !== previousKey)
-            playNote(frequency * octaveMultiplier)
+    // If the key corresponds to an actual note (ie. not a key held down, or not a different key)
+    if (frequency && key !== previousKey) {
+        playNote(frequency)
 
         // Keep track of the key that was just pressed
         previousKey = key
@@ -47,10 +45,10 @@ document.onkeydown = (event) => {
 
 document.onkeyup = (event) => {
     // Determine the letter pressed
-    const key = event.key.toLowerCase()
+    const key = whichKeyWasPressed(event)
 
     // Stop the note if this was a single key being pressed and released
-    if (previousKey == key)
+    if (previousKey === key)
         stopNote()
     
     // if the if statement does not occur, it's because a different note was
@@ -60,10 +58,13 @@ document.onkeyup = (event) => {
 
 // Plays a note at the given frequency
 playNote = (frequency) => {
-    // Get the nodes needed to produce our sound signature
+    // Get the nodes needed to produce our sound
     const oscillators = [1, 2, 3, 4, 5, 6, 7, 8].map(overtone => getOscillatorNode(frequency * overtone))
-    const gainNode = getGainNode([0, 0.8, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2], 1) // envelope attack, decay, & sustain
-    const vibratoNode = getDetuneVibratoNode(6, [0, 0, 0, 10, 15, 20], 2)
+    const vibratoNode = getDetuneVibratoNode(4, [0, 10, 30], 4)
+
+    // Create the envelope that starts the note (will be different if it's being played immediately after another note)
+    adsEnvelope = previousNote === null ? [0, 0.8, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2] : [0, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2]
+    const gainNode = getGainNode(adsEnvelope, 0.5) // envelope attack, decay, & sustain
     
     // Hook everything up
     oscillators.map(osc => vibratoNode.connect(osc.detune))
@@ -103,19 +104,29 @@ getGainNode = (envelope, envelopeDuration) => {
 // at the given frequency. The depth of the vibrato is specified over time
 // by the given envelope (which spans the given duration, in seconds)
 getDetuneVibratoNode = (frequency, envelope, envelopeDuration) => {
-    const detuneLFO = getOscillatorNode(frequency)
-    const vibratoGainNode = getGainNode(envelope, envelopeDuration)
 
+    // Imperfect vibrato sounds more natural, so modulate its freq at 0.25Hz between f-0.25 and f+0.22
+    const frequencyLFO = getOscillatorNode(0.25)
+    const freqLFOamplifier = getGainNode([0.25, 0.25], 1)
+
+    // Perform the vibrato
+    const detuneLFO = getOscillatorNode(frequency)
+    const vibratoDepthNode = getGainNode(envelope, envelopeDuration)
+
+    // detune.freq is now fluctuating around its original freq
+    frequencyLFO.connect(freqLFOamplifier).connect(detuneLFO.frequency)
+
+    frequencyLFO.start()
     detuneLFO.start()
 
-    return detuneLFO.connect(vibratoGainNode) // returns vibratoGainNode
+    return detuneLFO.connect(vibratoDepthNode) // returns vibratoDepthNode
 }
 
 // Interrupt the previous note and fade it out
 stopNote = () => {
-    previousGain.gain.cancelScheduledValues(0)
-    previousGain.gain.linearRampToValueAtTime(0.01, context.currentTime + 0.05) // envelope release
-    previousNote.map(osc => osc.stop())
+    previousGain.gain.cancelAndHoldAtTime(context.currentTime)
+    previousGain.gain.linearRampToValueAtTime(0.001, context.currentTime) // envelope release
+    previousNote.map(osc => osc.stop(context.currentTime))
 
     previousGain = null
     previousNote = null
