@@ -50,3 +50,4 @@ Fun facts:
 - The frequency of the vibrato fluctuates slightly, to give a slightly more realistic feel and remove some rigidity.
 - If no note is currently playing, pressing a key will give a harsher attack. If a note is currently playing, pressing a key will give a softer attack. This is to emulate the tonguing/slurring nature of playing a wind instrument.
   - Important tip: for slurred/legato note phrases, try not to release the first key until the second one is definitely held down. If a key is pressed within a (very short) window of time after a previous key is released, a sound will not be made. (This is due to the short amount of time it takes to process a note stop.)
+- Another tip: adjusting one of the sliders may cause the space bar to scroll the page when clicked. If this happens, you can simply click part of the page outside of the slider, and it should lock in place again.
