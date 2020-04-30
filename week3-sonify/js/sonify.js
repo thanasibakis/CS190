@@ -105,3 +105,10 @@ document.addEventListener("keydown", (event) => {
         add_letter(event.key.toLowerCase())
     }
 })
+
+// Prevent spacebar from scrolling page
+// https://stackoverflow.com/questions/22559830/
+window.onkeydown = (e) => {
+    if (e.keyCode == 32 && e.target == document.body)
+        e.preventDefault()
+}

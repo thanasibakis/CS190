@@ -2,9 +2,9 @@
 title: Home
 ---
 
-Week 3
+Week 3 Assignment: [_Type Your Name to Play Sounds_]({{ site.baseurl }}{% link week3-sonify/sonify.md %})
 
-- Assignment: [_Type Your Name to Play Sounds_]({{ site.baseurl }}{% link week3-sonify/sonify.md %})
+Week 5 Assignment: [_Build Your Own Synthesizer_]({{ site.baseurl }}{% link week5-synthesize/synth.md %})
 
 &nbsp;
 

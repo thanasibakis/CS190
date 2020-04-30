@@ -1,134 +1,193 @@
+let harmonics = [...Array(16).keys()].map(k => k + 1)   // https://stackoverflow.com/questions/3895478/
+
 const keymap = {
-    'a': 220,
-    's': 246.94,
-    'd': 277.18,
-    'f': 293.66,
-    'j': 329.63,
-    'k': 369.99,
-    'l': 415.30,
-    ';': 440
+    'a': 220,       's': 246.94,    'd': 277.18,
+    'f': 293.66,    'j': 329.63,    'k': 369.99,
+    'l': 415.30,    ';': 440
 }
-whichKeyWasPressed = (event) => event.key.toLowerCase().replace(':', ';')
 
 const context = new AudioContext()
 
-const masterGainNode = new GainNode(context, options = { "gain": 0.1 })
-masterGainNode.connect(context.destination)
+let note = {
+    keyPressed: null, // keep track to distinguish a key down from a key hold
+    frequency: null
+}
 
-let previousNote = null
-let previousGain = null
-let previousKey = null
+// Create the individual tones that form our sound
+note.pitchOscillators = harmonics.map(h => context.createOscillator())
+note.pitchAmplifiers = note.pitchOscillators.map(osc => osc.connect(context.createGain()))
+note.pitchAmplifiers.map((amp, i) => amp.gain.value = 1 / harmonics[i])
 
-document.onkeydown = (event) => {
-    // Determine the frequency of the note to play
-    const key = whichKeyWasPressed(event)
-    let frequency = keymap[key]
+// Create the master gain node that will control the envelope of the entire note
+note.masterAmplifier = context.createGain()
+note.masterAmplifier.gain.value = 0
 
-    // The spacebar represents a half-step up from the previous note,
-    // to be used like a grace note, if pressed while the previous key
-    // is still being held
-    if (key === ' ')
-        frequency = keymap[previousKey] * Math.pow(2, 1 / 12)
-    
-    // The shift key brings the note an octave up
-    if (event.shiftKey)
-        frequency *= 2
+note.pitchAmplifiers.map(amp => amp.connect(note.masterAmplifier))
+note.masterAmplifier.connect(context.destination)
 
-    // If the key corresponds to an actual note (ie. not a key held down, or not a different key)
-    if (frequency && key !== previousKey) {
-        playNote(frequency)
-
-        // Keep track of the key that was just pressed
-        previousKey = key
+const envelope = {
+    tongued: {
+        peakValue: 0.8,
+        sustainedValue: 0.2
+    },
+    legato: {
+        peakValue: 0.3,
+        sustainedValue: 0.2
     }
 }
 
+// Create vibrato at 4 hz, reaching 15 cents after 4 seconds
+note.detuneOscillator = context.createOscillator()
+note.detuneOscillator.frequency.value = 4
+
+note.detuneAmplifier = note.detuneOscillator.connect(context.createGain())
+note.detuneAmplifier.gain.value = 0
+
+note.pitchOscillators.map(osc => note.detuneAmplifier.connect(osc.detune))
+
+const detuneEnvelope = {
+    peakValue: 15,
+    startTime: 2
+}
+
+// Modulate the vibrato frequency between 3.75 and 4.25, at a rate of 0.3 hz
+note.detuneOscFrequencyOscillator = context.createOscillator()
+note.detuneOscFrequencyOscillator.frequency.value = 0.3
+
+note.detuneOscFrequencyAmplifier = context.createGain()
+note.detuneOscFrequencyAmplifier.gain.value = 0.25 // gets added/subtracted to detuneOsc.freq
+
+note.detuneOscFrequencyOscillator.connect(note.detuneOscFrequencyAmplifier).connect(note.detuneOscillator.frequency)
+
+// Start all oscillators. We will use the master gain node to control on/off
+note.pitchOscillators.map(osc => osc.start())
+note.detuneOscillator.start()
+note.detuneOscFrequencyOscillator.start()
+
+// Plotting
+
+let plotData = [{
+    x: harmonics,
+    y: note.pitchAmplifiers.map(amp => amp.gain.value),
+    type: "bar",
+    hoverinfo: "none",
+    marker: {
+        color: "rgb(0, 117, 255)"
+        
+    }
+}]
+
+let plotLayout = {
+    title: "Harmonic Amplitudes",
+    plot_bgcolor: "rgba(0, 0, 0, 0)",
+    paper_bgcolor: "rgba(0, 0, 0, 0)"
+}
+
+
+getKeyPressed = (event) => {
+    if (event.key === ':')
+        return ';'
+
+    return event.key.toLowerCase()
+}
+getFrequency = (event) => {
+    const key = getKeyPressed(event).replace(':', ';')
+    const octiveMultiplier = event.shiftKey ? 2 : 1
+
+    if (key in keymap)
+        return keymap[key] * octiveMultiplier
+    else if (key === ' ')
+        return note.frequency * Math.pow(2, 1 / 12) // adjust the old note slightly
+}
+
+document.onkeydown = (event) => {
+    const keyPressed = getKeyPressed(event)
+
+    // Chrome will pause the AudioContext until the first time a button is clicked, so let's re-enable our sound
+    context.resume()
+
+    let frequency = getFrequency(event)
+
+    // If the key corresponds to an actual note (ie. not a key held down, or not a different key)
+    if (frequency && keyPressed !== note.keyPressed) {
+        playNote(frequency)
+        note.keyPressed = keyPressed
+        note.frequency = frequency
+    }
+}
+
+// Prevent spacebar from scrolling page
+// https://stackoverflow.com/questions/22559830/
+window.onkeydown = (e) => {
+    if (e.keyCode == 32 && e.target == document.body)
+        e.preventDefault()
+}
+
+window.onload = () => {
+    Plotly.newPlot("harmonicsPlot", plotData, plotLayout, { staticPlot: true })
+
+    document.getElementById("harmonicsSlider").oninput = () => {
+        const upperBound = parseFloat(document.getElementById("harmonicsSlider").value)
+        const brightnessSlider = document.getElementById("brightnessSlider")
+        const k = brightnessSlider.max - parseFloat(brightnessSlider.value)
+        note.pitchAmplifiers.map((amp, index) => amp.gain.value = index+1 > upperBound ? 0 : 1 / Math.pow(harmonics[index], k))
+
+        plotData[0].y = note.pitchAmplifiers.map(amp => amp.gain.value)
+        Plotly.restyle("harmonicsPlot", 'y', [plotData[0].y])
+    }
+
+    document.getElementById("brightnessSlider").oninput = document.getElementById("harmonicsSlider").oninput
+
+    document.getElementById("vibratoDepthSlider").oninput = () => {
+        detuneEnvelope.peakValue = parseFloat(document.getElementById("vibratoDepthSlider").value)
+        note.detuneAmplifier.gain.cancelScheduledValues(context.currentTime)
+        note.detuneAmplifier.gain.exponentialRampToValueAtTime(detuneEnvelope.peakValue, context.currentTime + 0.0001)
+    }
+
+    document.getElementById("vibratoDelaySlider").oninput = () => {
+        detuneEnvelope.startTime = parseFloat(document.getElementById("vibratoDelaySlider").value)
+    }
+}
+
+
 document.onkeyup = (event) => {
-    // Determine the letter pressed
-    const key = whichKeyWasPressed(event)
+    const keyPressed = getKeyPressed(event)
 
-    // Stop the note if this was a single key being pressed and released
-    if (previousKey === key)
+    // Stop the note if the keyup corresponds to the note actually being played right now
+    if (note.keyPressed === keyPressed)
         stopNote()
-    
-    // if the if statement does not occur, it's because a different note was
-    // played before the key went up, and that note's play start already
-    // stopped this key's note
 }
 
-// Plays a note at the given frequency
 playNote = (frequency) => {
-    // Get the nodes needed to produce our sound
-    const oscillators = [1, 2, 3, 4, 5, 6, 7, 8].map(overtone => getOscillatorNode(frequency * overtone))
-    const vibratoNode = getDetuneVibratoNode(4, [0, 10, 30], 4)
+    isTonguedNote = (note.keyPressed === null) // the previous note
 
-    // Create the envelope that starts the note (will be different if it's being played immediately after another note)
-    adsEnvelope = previousNote === null ? [0, 0.8, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2] : [0, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2]
-    const gainNode = getGainNode(adsEnvelope, 0.5) // envelope attack, decay, & sustain
-    
-    // Hook everything up
-    oscillators.map(osc => vibratoNode.connect(osc.detune))
-    oscillators.map(osc => osc.connect(gainNode))
-    gainNode.connect(masterGainNode)
+    note.pitchOscillators.map((osc, i) => osc.frequency.value = frequency * harmonics[i])
 
-    // Stop any note currently playing, we're synthesizing a monophonic instrument :)
-    if (previousNote)
-        stopNote()
-    
-    // Start the new note
-    oscillators.map(osc => osc.start())
+    let env = isTonguedNote ? envelope.tongued : envelope.legato
 
-    // Keep track of this note so we can stop it later
-    previousNote = oscillators
-    previousGain = gainNode
-}
+    note.masterAmplifier.gain.exponentialRampToValueAtTime(env.peakValue, 0.1)
+    note.masterAmplifier.gain.exponentialRampToValueAtTime(env.sustainedValue, 0.1)
 
-// Returns a sine node of the given frequency
-getOscillatorNode = (frequency) => {
-    return new OscillatorNode(context, options = { "frequency": frequency })
-}
+    // setValueCurveAtTime doesn't really help here, because it seems cancelScheduledValues 
+    // can only cancel things that haven't started yet. Instead of starting a slow ramp now,
+    // we schedule a quick ramp later
 
-// Returns a gain node with the given envelope (which spans the given duration, in seconds)
-getGainNode = (envelope, envelopeDuration) => {
-    const gainNode = new GainNode(context)
-    gainNode.gain.setValueCurveAtTime(
-        new Float32Array(envelope),
-        context.currentTime,
-        envelopeDuration
+    note.detuneAmplifier.gain.setTargetAtTime(
+        target = detuneEnvelope.peakValue,
+        startTime = context.currentTime + detuneEnvelope.startTime,
+        timeConstant = 0.1 // duration
     )
-
-    return gainNode
 }
 
-// Returns the node needed to modulate an oscillator's detune AudioParam
-// at the given frequency. The depth of the vibrato is specified over time
-// by the given envelope (which spans the given duration, in seconds)
-getDetuneVibratoNode = (frequency, envelope, envelopeDuration) => {
-
-    // Imperfect vibrato sounds more natural, so modulate its freq at 0.25Hz between f-0.25 and f+0.22
-    const frequencyLFO = getOscillatorNode(0.25)
-    const freqLFOamplifier = getGainNode([0.25, 0.25], 1)
-
-    // Perform the vibrato
-    const detuneLFO = getOscillatorNode(frequency)
-    const vibratoDepthNode = getGainNode(envelope, envelopeDuration)
-
-    // detune.freq is now fluctuating around its original freq
-    frequencyLFO.connect(freqLFOamplifier).connect(detuneLFO.frequency)
-
-    frequencyLFO.start()
-    detuneLFO.start()
-
-    return detuneLFO.connect(vibratoDepthNode) // returns vibratoDepthNode
-}
-
-// Interrupt the previous note and fade it out
 stopNote = () => {
-    previousGain.gain.cancelAndHoldAtTime(context.currentTime)
-    previousGain.gain.linearRampToValueAtTime(0.001, context.currentTime) // envelope release
-    previousNote.map(osc => osc.stop(context.currentTime))
+    note.masterAmplifier.gain.cancelScheduledValues(context.currentTime)
+    note.masterAmplifier.gain.linearRampToValueAtTime(0, context.currentTime + 0.0001)
 
-    previousGain = null
-    previousNote = null
-    previousKey = null
+    note.detuneAmplifier.gain.cancelScheduledValues(context.currentTime)
+    note.detuneAmplifier.gain.linearRampToValueAtTime(0, context.currentTime + 0.0001)
+
+    note.keyPressed = null
 }
+
+
+

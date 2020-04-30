@@ -30,7 +30,7 @@ permalink: /sonify
 
 &nbsp;
 
-### The algorithm
+### Explanation
 
 If a vowel is typed, a note from the [A Major9](https://pianochord.com/A-major-7th/variation/A-major-9th-5th) chord is sustained.
 
