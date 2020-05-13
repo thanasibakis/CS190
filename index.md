@@ -6,6 +6,10 @@ Week 3 Assignment: [_Type Your Name to Play Sounds_]({{ site.baseurl }}{% link w
 
 Week 5 Assignment: [_Build Your Own Synthesizer_]({{ site.baseurl }}{% link week5-synthesize/synth.md %})
 
+Final Research Project:
+
+- [Project Propsal]({{ site.baseurl }}{% link final-project/propsal.md %})
+
 &nbsp;
 
 ```javascript
