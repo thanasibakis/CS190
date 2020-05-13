@@ -8,7 +8,7 @@ Week 5 Assignment: [_Build Your Own Synthesizer_]({{ site.baseurl }}{% link week
 
 Final Research Project:
 
-- [Project Propsal]({{ site.baseurl }}{% link final-project/proposal.md %})
+- [Project Proposal]({{ site.baseurl }}{% link final-project/proposal.md %})
 
 &nbsp;
 
