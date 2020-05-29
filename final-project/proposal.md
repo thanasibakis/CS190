@@ -1,6 +1,6 @@
 ---
 title: Project Proposal
-permalink: /project/proposal
+permalink: /project-proposal
 ---
 
 ### Project Info
