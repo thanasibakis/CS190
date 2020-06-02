@@ -1,4 +1,4 @@
-let API_URL = "http://localhost/" // data2sound API
+const DEFAULT_API_URL = "http://localhost/" // data2sound API location (relative to the client machine)
 const SUPPORTED_PARAMETERS = ["pitch", "volume"] // specified by the API
 
 let config = {
@@ -56,19 +56,21 @@ let play_midi_note = (event) => {
 
 // Connects to the sound2data API to sonify into MIDI
 let load_sonification_of = (parameter_map) => {
-    fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            parameter_map,
-            config
-        })
-    })
-        .then(response => response.text()) // extract the MIDI URI
-        .then(data => midi_player.loadDataUri(data))
-        .catch(reason => alert("Could not connect to the API."))
+    fetch(
+        document.getElementById("api-url-input").value,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                parameter_map,
+                config
+            })
+        }
+    ).then(response => response.text()) // extract the MIDI URI
+     .then(data => midi_player.loadDataUri(data))
+     .catch(reason => alert("Could not connect to the API."))
 }
 
 let show_section = (section_id) => {
@@ -122,11 +124,31 @@ let configure_parameter_map_for = (parse_results) => {
         })
     })
 
+    let row = document.createElement("tr")
+    let col1 = document.createElement("td")
+    let col2 = document.createElement("td")
+
+    let label = document.createElement("label")
+    label.htmlFor = "api-url-input"
+    label.innerHTML = "Where can the API be reached?"
+
+    let text_entry = document.createElement("input")
+    text_entry.type = "text"
+    text_entry.name = "api-url-input"
+    text_entry.id = "api-url-input"
+    text_entry.defaultValue = DEFAULT_API_URL
+
+    file_configuration_table.appendChild(row)
+    row.appendChild(col1)
+    row.appendChild(col2)
+    col1.appendChild(label)
+    col2.appendChild(text_entry)
+
     let submit_button = document.createElement("div")
     submit_button.innerHTML = "Sonify"
 
-    let row = document.createElement("tr")
-    let col = document.createElement("td")
+    row = document.createElement("tr")
+    col = document.createElement("td")
     col.className = "button-cell"
     col.colSpan = 2
     file_configuration_table.appendChild(row)
