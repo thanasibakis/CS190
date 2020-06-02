@@ -26,6 +26,13 @@ permalink: /data2sound
     background-color: #2a7ae220;
     cursor: pointer;
   }
+
+  .flex-center {
+    display: flex;
+    flex-flow: column; 
+    align-items: center;
+    justify-content: center;
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script> <!-- GitHub Tonejs/Tone.js -->
@@ -33,16 +40,26 @@ permalink: /data2sound
 <script src="{{ site.baseurl }}{% link final-project/js/libs/papaparse.min.js %}"></script> <!-- GitHub mholt/PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> <!-- chartjs.org -->
 
+<script>
+  // We need this here so Jekyll can autofill the path
+  const DEMO_CSV_FILE_PATH = "{{ site.baseurl }}{% link final-project/demo.csv %}"
+</script>
+
 <script src="{{ site.baseurl }}{% link final-project/js/plotting.js %}"></script>
 <script src="{{ site.baseurl }}{% link final-project/js/main.js %}"></script>
 
-<div style="display: flex; flex-flow: column; align-items: center">
-  <h4 id="get-started-text">Drop a CSV file (with headers) on to the page to get started</h4>
-  <div id="file-configuration-section" style="display: none">
+<div class="flex-center" style="height: 30em">
+  <div id="get-started-section" class="flex-center">
+    <h4>Drop a CSV file (with headers) on the page to get started</h4>
+    <br/><br/>
+    <table><tr><td class="button-cell"><div id="load-demo-button">Load the demo dataset</div></td></tr></table>
+  </div>
+  <div id="file-configuration-section" class="flex-center" style="display: none">
     <h4>Let's configure the program</h4>
+    <br/>
     <table id="file-configuration-table"></table>
   </div>
-  <div id="results-section" style="display: none">
+  <div id="results-section" class="flex-center" style="display: none">
     <div style="padding: 30px 0; width: 600px">
       <canvas id="plot"></canvas>
     </div>

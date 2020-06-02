@@ -72,9 +72,9 @@ let load_sonification_of = (parameter_map) => {
 }
 
 let show_section = (section_id) => {
-    ["get-started-text", "file-configuration-section", "results-section"].forEach(section => {
+    ["get-started-section", "file-configuration-section", "results-section"].forEach(section => {
         if(section_id === section)
-            document.getElementById(section).style.display = "block"
+            document.getElementById(section).style.display = "flex"
         else
             document.getElementById(section).style.display = "none"
     })
@@ -139,8 +139,13 @@ let configure_parameter_map_for = (parse_results) => {
         SUPPORTED_PARAMETERS.forEach(parameter => {
             let selector = document.getElementById(`${parameter}-selector`)
             if(selector.value !== "None")
-            parameter_map[parameter] = parse_results.data.map(row => row[selector.value])
+                parameter_map[parameter] = parse_results.data.map(row => row[selector.value])
         })
+
+        if (Object.keys(parameter_map).length === 0) {
+            alert("Please configure at least one mapping.")
+            return
+        }
 
         show_section("results-section")
 
@@ -191,8 +196,20 @@ window.onload = () => {
         document.getElementById("play-button").innerHTML = "Play"
     }
 
-    document.getElementById("new-file-button").onclick = () => show_section("get-started-text")
+    document.getElementById("download-button").onclick = () => alert("I'll get there soon!")
+    document.getElementById("new-file-button").onclick = () => show_section("get-started-section")
     document.getElementById("reconfigure-button").onclick = () => show_section("file-configuration-section")
+
+    document.getElementById("load-demo-button").onclick = () => Papa.parse(
+        DEMO_CSV_FILE_PATH,
+        {
+            complete: configure_parameter_map_for,
+            error: err => { alert(err.message) },
+            download: true,
+            header: true,
+            dynamicTyping: true
+        }
+    )
     
     document.ondragover = (event) => {
         // Don't let the browser open the file, part 1
