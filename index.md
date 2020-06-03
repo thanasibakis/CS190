@@ -13,6 +13,7 @@ Week 5:
 Final Research Project:
 
 - [Project Proposal]({{ site.baseurl }}{% link final-project/proposal.md %})
+- [Project Deliverable]({{ site.baseurl }}{% link final-project/data2sound.md %})
 
 &nbsp;
 

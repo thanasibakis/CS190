@@ -45,6 +45,7 @@ permalink: /data2sound
   const DEMO_CSV_FILE_PATH = "{{ site.baseurl }}{% link final-project/demo.csv %}"
 </script>
 
+<script src="{{ site.baseurl }}{% link final-project/js/RowForTable.js %}"></script>
 <script src="{{ site.baseurl }}{% link final-project/js/plotting.js %}"></script>
 <script src="{{ site.baseurl }}{% link final-project/js/main.js %}"></script>
 

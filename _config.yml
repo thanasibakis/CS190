@@ -4,5 +4,10 @@ email: thanasibakis@gmail.com
 github_username: thanasibakis
 theme: minima
 
+header_pages:
+  - week3-sonify/sonify.md
+  - week5-synthesize/synth.md
+  - final-project/data2sound.md
+
 # include this if building for the ICS site
 # baseurl: "/~abakis"

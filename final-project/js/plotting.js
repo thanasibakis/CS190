@@ -2,7 +2,7 @@ let plot = null
 const MAX_PLOT_WIDTH = 100 // number of points on x-axis to show at a time
 const PLOT_MARGIN = 20 // number of points remaining when the plot should scroll
 
-let draw_plot_with = (parameter_map) => {
+let draw_plot_of = (parameter_map) => {
     let plot_element = document.getElementById("plot")
     
     let data = []
@@ -32,9 +32,18 @@ let draw_plot_with = (parameter_map) => {
                         max: Math.min(MAX_PLOT_WIDTH, data[0].data.length)
                     }
                 }]
+            },
+            animation: {
+                duration: 400
             }
         }
     })
+}
+
+let scroll_plot_if_needed_for = (current_position) => {
+    let x_max = plot.options.scales.xAxes[0].ticks.max
+    if (x_max - current_position <= PLOT_MARGIN)
+        scroll_plot_forward_by(MAX_PLOT_WIDTH - 2 * PLOT_MARGIN)
 }
 
 let scroll_plot_forward_by = (amount) => {
