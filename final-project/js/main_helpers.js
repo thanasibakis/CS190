@@ -18,12 +18,44 @@ let download_midi_file = () => {
     after the current event.
 */
 let get_next_midi_event_matching = (name) => {
-    let next_event = current_state.midi_event_log.shift()
+    try {
+        let next_event = current_state.midi_event_log.shift()
 
-    while(next_event.name !== name)
-        next_event = current_state.midi_event_log.shift()
+        while(next_event.name !== name)
+            next_event = current_state.midi_event_log.shift()
 
-    return next_event
+        return next_event
+    } catch (error) {
+        return null
+    }
+    
+}
+
+
+
+/*
+    Once the playback hits the end of the track, this temporarily
+    modifies the actions of the play button to reset everything before playing.
+
+    This also force resets the synth, since it does not seem to obey the final
+    note off message.
+*/
+let handle_end_of_track = () => {
+    reset_synth()
+
+    document.getElementById("play-button").innerHTML = "Play"
+
+    document.getElementById("play-button").onclick = () => {
+        stop_player()
+        toggle_player()
+
+        // Next time we click the play button, the usual thing will happen
+        document.getElementById("play-button").onclick = toggle_player
+    }
+
+    // Clear the plot highlights
+    // We don't use reset_plot because we don't want to scroll back automatically
+    highlight_plot_between_indices(1, -1)
 }
 
 

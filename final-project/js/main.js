@@ -154,7 +154,7 @@ let handle_midi_message = (event) => {
             break
 
         case "Note off":
-            // Shut off the synth
+            // Stop the note on the synth
             synth.triggerRelease()
 
             break
@@ -211,8 +211,17 @@ let load_sonification_of = (parameter_map, measurement_types) => {
 
     // Store the MIDI data in the midi_player, and update the current_state
     .then(data => {
+        // If anything's playing right now, stop it
         stop_player()
+
+        // Generate a new player with the new MIDI file
         midi_player = new MidiPlayer.Player(handle_midi_message).loadDataUri(data)
+
+        // The synth doesn't like obeying the last note off (not sure why),
+        // so we'll force a stop at the end of the track
+        midi_player.on("endOfFile", handle_end_of_track)
+
+        // Updating the current state. See current_state comments.
         reset_midi_event_log()
         current_state.midi_uri = data
     })
