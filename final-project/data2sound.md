@@ -45,9 +45,11 @@ permalink: /data2sound
   const DEMO_CSV_FILE_PATH = "{{ site.baseurl }}{% link final-project/demo.csv %}"
 </script>
 
-<script src="{{ site.baseurl }}{% link final-project/js/RowForTable.js %}"></script>
-<script src="{{ site.baseurl }}{% link final-project/js/plotting.js %}"></script>
-<script src="{{ site.baseurl }}{% link final-project/js/main.js %}"></script>
+
+<script src="{{ site.baseurl }}{% link final-project/js/main_plotting.js %}"></script> <!-- Helper functions for plotting charts of data -->
+<script src="{{ site.baseurl }}{% link final-project/js/main_helpers.js %}"></script> <!-- Helper functions that are not plot-related -->
+<script src="{{ site.baseurl }}{% link final-project/js/RowForTable.js %}"></script> <!-- A class to aid in building HTML tables using JS -->
+<script src="{{ site.baseurl }}{% link final-project/js/main.js %}"></script> <!-- The main bulk of the client program (import this last!) -->
 
 <div class="flex-center" style="height: 30em">
   <div id="get-started-section" class="flex-center">
