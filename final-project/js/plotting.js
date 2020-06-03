@@ -53,11 +53,14 @@ let reset_plot = () => {
     plot.options.scales.xAxes[0].ticks.min = 0
     plot.options.scales.xAxes[0].ticks.max = Math.min(MAX_PLOT_WIDTH, plot.data.datasets[0].data.length)
 
-    highlight_plot_up_to_index(-1)
+    for(let i = 0; i < plot.data.datasets.length; i++)
+        plot.data.datasets[i].pointRadius = 0
+
+    plot.update()
 }
 
-let highlight_plot_up_to_index = (index) => {
-    let get_radius_for_index = (context) => context.dataIndex <= index ? 4 : 0
+let highlight_plot_between_indices = (start_index, end_index) => {
+    let get_radius_for_index = (context) => (context.dataIndex >= start_index && context.dataIndex <= end_index) ? 4 : 0
 
     for(let i = 0; i < plot.data.datasets.length; i++)
         plot.data.datasets[i].pointRadius = get_radius_for_index

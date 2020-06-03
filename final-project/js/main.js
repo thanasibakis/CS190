@@ -1,5 +1,6 @@
 const DEFAULT_API_URL = "http://localhost/" // data2sound API location (relative to the client machine)
 const SUPPORTED_PARAMETERS = ["pitch", "volume"] // specified by the API
+const SUPPORTED_MEASUREMENT_TYPES =  ["mean", "min", "max", "length"]
 
 let config = {
     // Minimal duration of each sonified segment, in ticks
@@ -17,7 +18,6 @@ let config = {
 
 let play_midi_note = (event) => {
     let current_sample = event.tick / config.ticks_per_samp
-    highlight_plot_up_to_index(current_sample)
 
     // Move window up, always keeping a PLOT_MARGIN to the left and right of the current sample
     let x_max = plot.options.scales.xAxes[0].ticks.max
@@ -30,6 +30,16 @@ let play_midi_note = (event) => {
                 note = event.noteName, 
                 velocity = event.velocity/127 // it took me way too long to figure out velocity is 0-1
             )
+            
+            let next_event = current_midi_events.shift()
+
+            while(next_event.name !== "Note off") // find the corresponding note off
+                next_event = current_midi_events.shift()
+
+            console.log(next_event)
+
+            let end_sample = next_event.tick / config.ticks_per_samp - 1
+            highlight_plot_between_indices(current_sample, end_sample)
 
             break
 
@@ -55,7 +65,7 @@ let play_midi_note = (event) => {
 }
 
 // Connects to the sound2data API to sonify into MIDI
-let load_sonification_of = (parameter_map) => {
+let load_sonification_of = (parameter_map, measurement_types) => {
     fetch(
         document.getElementById("api-url-input").value,
         {
@@ -65,11 +75,15 @@ let load_sonification_of = (parameter_map) => {
             },
             body: JSON.stringify({
                 parameter_map,
+                measurement_types,
                 config
             })
         }
     ).then(response => response.text()) // extract the MIDI URI
-     .then(data => midi_player.loadDataUri(data))
+     .then(data => {
+         midi_player.loadDataUri(data)
+         current_midi_events = midi_player.getEvents()[0].slice() // copy
+      })
      .catch(reason => alert("Could not connect to the API."))
 }
 
@@ -93,22 +107,25 @@ let configure_parameter_map_for = (parse_results) => {
     SUPPORTED_PARAMETERS.forEach(parameter => {
         let dropdown = document.getElementById(`${parameter}-selector`)
 
+        let row = document.createElement("tr")
+        let col1 = document.createElement("td")
+        let col2 = document.createElement("td")
+        let col3 = document.createElement("td")
+        let col4 = document.createElement("td")
+        file_configuration_table.appendChild(row)
+        row.appendChild(col1)
+        row.appendChild(col2)
+        row.appendChild(col3)
+        row.appendChild(col4)
+
         let label = document.createElement("label")
         label.htmlFor = `${parameter}-selector`
-        label.innerHTML = `Which column should map to ${parameter}? `
+        label.innerHTML = `Which column should map to ${parameter}?`
+        col1.appendChild(label)
 
         let selector = document.createElement("select")
         selector.name = `${parameter}-selector`
         selector.id = `${parameter}-selector`
-        
-        let row = document.createElement("tr")
-        let col1 = document.createElement("td")
-        let col2 = document.createElement("td")
-
-        file_configuration_table.appendChild(row)
-        row.appendChild(col1)
-        row.appendChild(col2)
-        col1.appendChild(label)
         col2.appendChild(selector)
 
         let option = document.createElement('option')
@@ -121,6 +138,28 @@ let configure_parameter_map_for = (parse_results) => {
             option.value = column
             option.innerHTML = column
             selector.appendChild(option)
+        })
+
+
+
+
+
+        
+        label = document.createElement("label")
+        label.htmlFor = `${parameter}-measurement-selector`
+        label.innerHTML = "How should that be measured?"
+        col3.appendChild(label)
+
+        let selector2 = document.createElement("select")
+        selector2.name = `${parameter}-measurement-selector`
+        selector2.id = `${parameter}-measurement-selector`
+        col4.appendChild(selector2)
+        
+        SUPPORTED_MEASUREMENT_TYPES.forEach(meas_type => {
+            let option = document.createElement('option')
+            option.value = meas_type
+            option.innerHTML = meas_type
+            selector2.appendChild(option)
         })
     })
 
@@ -137,6 +176,7 @@ let configure_parameter_map_for = (parse_results) => {
     text_entry.name = "api-url-input"
     text_entry.id = "api-url-input"
     text_entry.defaultValue = DEFAULT_API_URL
+    col2.colSpan = 3
 
     file_configuration_table.appendChild(row)
     row.appendChild(col1)
@@ -150,18 +190,21 @@ let configure_parameter_map_for = (parse_results) => {
     row = document.createElement("tr")
     col = document.createElement("td")
     col.className = "button-cell"
-    col.colSpan = 2
+    col.colSpan = 4
     file_configuration_table.appendChild(row)
     row.appendChild(col)
     col.appendChild(submit_button)
 
     submit_button.onclick = () => {
         let parameter_map = {}
+        let measurement_types = {}
 
         SUPPORTED_PARAMETERS.forEach(parameter => {
             let selector = document.getElementById(`${parameter}-selector`)
+            let selector2 = document.getElementById(`${parameter}-measurement-selector`)
             if(selector.value !== "None")
                 parameter_map[parameter] = parse_results.data.map(row => row[selector.value])
+                measurement_types[parameter] = selector2.value
         })
 
         if (Object.keys(parameter_map).length === 0) {
@@ -173,7 +216,7 @@ let configure_parameter_map_for = (parse_results) => {
 
         draw_plot_with(parameter_map)
 
-        load_sonification_of(parameter_map)
+        load_sonification_of(parameter_map, measurement_types)
     }
 }
 
@@ -182,6 +225,7 @@ let generate_synth = () => new Tone.MembraneSynth().toMaster()
 let synth = generate_synth()
 let midi_player = new MidiPlayer.Player(play_midi_note)
 let current_parse_results = null
+let current_midi_events = null
 
 window.onload = () => {
 
@@ -215,6 +259,7 @@ window.onload = () => {
         }
         
         reset_plot()
+        current_midi_events = midi_player.getEvents()[0].slice() // copy
         document.getElementById("play-button").innerHTML = "Play"
     }
 
@@ -262,4 +307,3 @@ window.onload = () => {
         })
     }
 }
-
