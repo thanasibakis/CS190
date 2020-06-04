@@ -21,7 +21,7 @@
         This information is obtained by viewing the API documentation (or source code).
         For an understanding of these values, see the API documentation.
 */
-const DEFAULT_API_URL = "http://localhost/" // data2sound API location (relative to the client machine)
+const DEFAULT_API_URL = "http://localhost/sonify" // data2sound API location (relative to the client machine)
 const SUPPORTED_PARAMETERS = ["pitch", "volume"] // specified by the API
 const SUPPORTED_MEASUREMENT_TYPES =  ["mean", "min", "max", "length"]
 
@@ -180,7 +180,7 @@ let handle_midi_message = (event) => {
     and loads the resulting sonification into the midi_player.
 
     parameter_map:
-        An object whose keys are a subset of the SUPPORTED_PARAMTERS list
+        An object whose keys are a subset of the SUPPORTED_PARAMETERS list
         and whose values are arrays of numbers, corresponding to the data that
         will be used to sonify each parameter.
 
