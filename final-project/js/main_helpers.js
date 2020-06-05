@@ -83,7 +83,7 @@ let reset_synth = () => {
         synth = null
     }
     
-    synth = new Tone.MembraneSynth().toMaster()
+    synth = new Tone.Synth().toMaster()
 }
 
 
