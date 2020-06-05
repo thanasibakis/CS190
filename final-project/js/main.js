@@ -137,13 +137,19 @@ let handle_midi_message = (event) => {
     // Translate the current MIDI tick into the corresponding data point index
     let current_sample = event.tick / config.ticks_per_samp
 
+    //if(event.tick === 0) {
+    //    synth.oscillator.start()
+    //    synth.oscillator.stop()
+    //}
+
     // Move window up, always keeping a PLOT_MARGIN to the left and right of the current sample
     scroll_plot_if_needed_for(current_sample)
 
     switch(event.name) {
         case "Note on":
             // Play the note on the synth
-            synth.triggerAttack(event.noteName, event.velocity/127)
+            synth.triggerAttack(event.noteName)
+            // note to self: named args do not work, so if you want velocity you must also give Tone.now()
             
             // Find the tick value of the corresponding note off message
             let end_of_note = get_next_midi_event_matching("Note off").tick / config.ticks_per_samp - 1

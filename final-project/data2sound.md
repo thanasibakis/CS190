@@ -35,7 +35,7 @@ permalink: /data2sound
   }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script> <!-- GitHub Tonejs/Tone.js -->
+<script src="{{ site.baseurl }}{% link final-project/js/libs/Tone.js %}"></script> <!-- GitHub Tonejs/Tone.js -->
 <script src="{{ site.baseurl }}{% link final-project/js/libs/midiplayer.js %}"></script> <!-- GitHub grimmdude/MidiPlayerJS -->
 <script src="{{ site.baseurl }}{% link final-project/js/libs/papaparse.min.js %}"></script> <!-- GitHub mholt/PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> <!-- chartjs.org -->

@@ -82,7 +82,7 @@ let reset_synth = () => {
         synth.dispose()
         synth = null
     }
-
+    
     synth = new Tone.MembraneSynth().toMaster()
 }
 
@@ -130,7 +130,8 @@ let stop_player = () => {
     If the midi_player is playing, pause it; otherwise, resume it.
 */
 let toggle_player = () => {
-    Tone.context.resume().then(() => {
+    // Resume audio context
+    Tone.start().then( () => {
 
         // The synth likes to die on pauses, so we'll just make a new one
         reset_synth()
@@ -146,6 +147,5 @@ let toggle_player = () => {
                 document.getElementById("play-button").innerHTML = "Pause"
                 break
         }
-
     })
 }
