@@ -44,7 +44,7 @@ let config = {
     low: 52,
 
     // Lowest volume (0-127) to use in sonification
-    volume_low: 30,
+    volume_low: 60,
 
     // Highest volume (0-127) to use in sonification
     volume_high: 127,
