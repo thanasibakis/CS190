@@ -41,7 +41,7 @@ let get_next_midi_event_matching = (name) => {
     note off message.
 */
 let handle_end_of_track = () => {
-    //reset_synth()
+    synth.reset()
 
     document.getElementById("play-button").innerHTML = "Play"
 
@@ -67,38 +67,6 @@ let handle_end_of_track = () => {
 */
 let reset_midi_event_log = () => 
     current_state.midi_event_log = midi_player.getEvents()[0].slice() || null
-
-
-
-/*
-    Stop the current synth object and replace it with a new one.
-
-    This is because the synth objects seem to have spontaneous issues with the reset functionality.
-    Replacing the synth works better.
-*/
-let reset_synth = () => {
-    if(synth) {
-        synth.triggerRelease() // Don't hold any note ons before you are disposed
-        synth.dispose()
-        synth = null
-    }
-    
-    // Tone.MembraneSynth doesn't work well, but let's emulate its sound
-    synth = new Tone.Synth({
-        pitchDecay:         0.05,
-        octaves:            10,
-        oscillator: {
-            type:           "sine"
-        },
-        envelope: {
-            attack:         0.001,
-            decay:          0.4,
-            sustain:        0.01,
-            release:        1.4,
-            attackCurve:    "exponential"
-        }
-    }).toMaster()
-}
 
 
 
@@ -132,7 +100,7 @@ let stop_player = () => {
     midi_player.stop()
     midi_player.resetTracks()
 
-    reset_synth()
+    synth.reset()
     reset_plot()
     reset_midi_event_log()
     document.getElementById("play-button").innerHTML = "Play"
@@ -148,7 +116,7 @@ let toggle_player = () => {
     Tone.start().then( () => {
 
         // The synth likes to die on pauses, so we'll just make a new one
-        reset_synth()
+        synth.reset()
 
         switch(midi_player.isPlaying()) {
             case true:

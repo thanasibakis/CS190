@@ -51,6 +51,7 @@ permalink: /data2sound
 </script>
 
 
+<script src="{{ site.baseurl }}{% link final-project/js/MIDISynth.js %}"></script> <!-- A class to interface with Tone.js more easily -->
 <script src="{{ site.baseurl }}{% link final-project/js/main_plotting.js %}"></script> <!-- Helper functions for plotting charts of data -->
 <script src="{{ site.baseurl }}{% link final-project/js/main_helpers.js %}"></script> <!-- Helper functions that are not plot-related -->
 <script src="{{ site.baseurl }}{% link final-project/js/RowForTable.js %}"></script> <!-- A class to aid in building HTML tables using JS -->

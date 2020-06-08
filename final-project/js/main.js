@@ -16,13 +16,15 @@
         This list stores which aspects of the synth sound can be controlled using the data.
         This information is obtained by viewing the API documentation (or source code).
 
+        I may consider automatically fetching this from the API eventually.
+
     SUPPORTED_MEASUREMENT_TYPES:
         This list stores the possible ways by which the data can be translated into values for MIDI messages. 
         This information is obtained by viewing the API documentation (or source code).
         For an understanding of these values, see the API documentation.
 */
 const DEFAULT_API_URL = "https://data2sound.herokuapp.com/sonify" // data2sound API location (if "localhost", it's the client machine)
-const SUPPORTED_PARAMETERS = ["pitch", "volume"] // specified by the API
+const SUPPORTED_PARAMETERS = ["pitch", "volume", "pan"] // specified by the API
 const SUPPORTED_MEASUREMENT_TYPES =  ["mean", "min", "max", "length"]
 
 
@@ -60,6 +62,7 @@ let config = {
 
     synth:
         The Tone.js synth that will produce sound in the browser.
+        Here, we configure the synth to emulate Tone.MembraneSynth, since that object doesn't work well.
     
     midi_player:
         The midi-player-js object that fires events for each MIDI message, all properly timed.
@@ -78,7 +81,20 @@ let config = {
         Stores the Chart.JS plot object to visualize the data as the sonification is playing.
 
 */
-let synth = null
+let synth = new MIDISynth({
+    pitchDecay:         0.05,
+    octaves:            10,
+    oscillator: {
+        type:           "sine"
+    },
+    envelope: {
+        attack:         0.001,
+        decay:          0.4,
+        sustain:        0.01,
+        release:        1.4,
+        attackCurve:    "exponential"
+    }
+})
 
 let midi_player = null
 
@@ -147,10 +163,7 @@ let handle_midi_message = (event) => {
     // Translate the current MIDI tick into the corresponding data point index
     let current_sample = event.tick / config.ticks_per_samp
 
-    //if(event.tick === 0) {
-    //    synth.oscillator.start()
-    //    synth.oscillator.stop()
-    //}
+    console.log(event)
 
     // Move window up, always keeping a PLOT_MARGIN to the left and right of the current sample
     scroll_plot_if_needed_for(current_sample)
@@ -158,8 +171,7 @@ let handle_midi_message = (event) => {
     switch(event.name) {
         case "Note on":
             // Play the note on the synth
-            synth.triggerAttack(event.noteName)
-            // note to self: named args do not work, so if you want velocity you must also give Tone.now()
+            synth.note_on(event.noteName)
             
             // Find the tick value of the corresponding note off message
             let end_of_note = get_next_midi_event_matching("Note off").tick / config.ticks_per_samp - 1
@@ -170,20 +182,12 @@ let handle_midi_message = (event) => {
             break
 
         case "Note off":
-            // Stop the note on the synth
-            synth.triggerRelease()
+            synth.note_off()
 
             break
 
         case "Controller Change":
-            switch(event.number) { // CC #
-                case 7:
-                    // Convert the MIDI CC value to a decibel value, maxing out at 0
-                    let volume_db = 40 * Math.log(event.value/127)
-                    synth.volume.exponentialRampToValueAtTime(volume_db, Tone.context.currentTime + 0.001)
-
-                    break
-            }
+            synth.controller_change(event.number, event.value)
 
             break
     }
