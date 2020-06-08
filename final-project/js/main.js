@@ -43,6 +43,12 @@ let config = {
     // Lowest MIDI note to use in sonification
     low: 52,
 
+    // Lowest volume (0-127) to use in sonification
+    volume_low: 30,
+
+    // Highest volume (0-127) to use in sonification
+    volume_high: 127,
+
     // The scale of tones (in pitch class) from which to work with
     scale: [0, 2, 4, 5, 7, 9, 11] // C major scale
 }
