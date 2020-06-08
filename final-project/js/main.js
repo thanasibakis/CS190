@@ -127,6 +127,10 @@ let build_configuration_ui = (parse_results) => {
     new RowForTable(file_configuration_table)
         .add_button("Sonify", () => load_user_configuration_of(parse_results), 4)
 
+    let label = document.createElement("p")
+    label.innerHTML = "It may take a second to load the sonification after clicking."
+    document.getElementById("file-configuration-section").appendChild(label)
+
     // Now that we've build the table, show it in the UI
     show_section("file-configuration-section")
 }
@@ -221,7 +225,7 @@ let load_sonification_of = (parameter_map, measurement_types) => {
     // Extract the MIDI data from the API's response
     .then(response => response.text()) 
 
-    // Store the MIDI data in the midi_player, and update the current_state
+    // Store the MIDI data in the midi_player, update the current_state, load the playback UI
     .then(data => {
         // If anything's playing right now, stop it
         stop_player()
@@ -236,6 +240,10 @@ let load_sonification_of = (parameter_map, measurement_types) => {
         // Updating the current state. See current_state comments.
         reset_midi_event_log()
         current_state.midi_uri = data
+
+        // Show the playback UI
+        show_section("results-section")
+        draw_plot_of(parameter_map)
     })
 
     // If the connection or request was unsuccessful
@@ -275,8 +283,6 @@ let load_user_configuration_of = (parse_results) => {
     }
 
     // Load the playback UI and sonify the data
-    show_section("results-section")
-    draw_plot_of(parameter_map)
     load_sonification_of(parameter_map, measurement_types)
 }
 

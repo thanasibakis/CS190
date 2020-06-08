@@ -41,7 +41,7 @@ let get_next_midi_event_matching = (name) => {
     note off message.
 */
 let handle_end_of_track = () => {
-    reset_synth()
+    //reset_synth()
 
     document.getElementById("play-button").innerHTML = "Play"
 
