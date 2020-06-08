@@ -8,6 +8,11 @@ permalink: /data2sound
     transition: opacity 0.3s;
   }
 
+  #api-url-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .button-cell {
     padding: 0;
   }

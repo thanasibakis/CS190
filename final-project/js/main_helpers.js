@@ -73,7 +73,7 @@ let reset_midi_event_log = () =>
 /*
     Stop the current synth object and replace it with a new one.
 
-    This is because the synth objects seem to have spontaneous issues with the play/pause functionality.
+    This is because the synth objects seem to have spontaneous issues with the reset functionality.
     Replacing the synth works better.
 */
 let reset_synth = () => {
@@ -83,7 +83,21 @@ let reset_synth = () => {
         synth = null
     }
     
-    synth = new Tone.Synth().toMaster()
+    // Tone.MembraneSynth doesn't work well, but let's emulate its sound
+    synth = new Tone.Synth({
+        pitchDecay:         0.05,
+        octaves:            10,
+        oscillator: {
+            type:           "sine"
+        },
+        envelope: {
+            attack:         0.001,
+            decay:          0.4,
+            sustain:        0.01,
+            release:        1.4,
+            attackCurve:    "exponential"
+        }
+    }).toMaster()
 }
 
 
