@@ -62,6 +62,8 @@ permalink: /data2sound
     <h4>Drop a CSV file (with headers) on the page to get started</h4>
     <br/><br/>
     <table><tr><td class="button-cell"><div id="load-demo-button">Load the demo dataset</div></td></tr></table>
+    <br/><br/>
+    You may be interested in reading the <a href="{{ site.baseurl }}{% link final-project/manual.md %}">manual</a> for this program.
   </div>
   <div id="file-configuration-section" class="flex-center" style="display: none">
     <h4>Let's configure the program</h4>
