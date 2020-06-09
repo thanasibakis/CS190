@@ -15,15 +15,15 @@ Visit the [program page]({{ site.baseurl }}{% link final-project/data2sound.md %
 
 The core of the sonification is the *parameter map*. In this program, a *parameter* refers to an aspect of the resulting sound that can be controlled, such as the pitches of the notes or the volume of the track over time. The main purpose of the program is to map columns in your CSV file to these sound parameters.
 
-On this screen, you can set the parameter map. Each row of the table represents a parameter you can configure. The leftmost dropdown of each row allows you to pick which CSV column will map to each parameter. The other dropdown allows you to configure how the column of data is measured. To understand this better, we need to look briefly at the algorithm that drives the sonification-- check out the [next section](#algorithm) for this! If you'd rather get right to the sonification, the default setting of *mean* is a pretty sensible choice. 
+On this screen, you can set the parameter map. Each row of the table represents a parameter you can configure. The leftmost dropdown of each row allows you to pick which CSV column will map to each parameter. The other dropdown allows you to configure how the column of data is measured. To understand this better, we need to look briefly at the algorithm that drives the sonification-- check out the [next section](#the-key-algorithm-segmentation) for this! If you'd rather get right to the sonification, the default setting of *mean* is a pretty sensible choice. 
 
 You are not required to use every column of your data, and you are not forbidden from using the same column for multiple parameters. The only requirement is that you must set up at least one mapping. You'll likely want this to be pitch, so you can actually hear something!
 
-The last row of the table, before the *Sonify* button, allows the user to specify the location of the web server providing the sonification engine. You will likely not need to change this ever, unless you are developing your own additions to the engine. You can read the section about the program [architecture](#architecture) for information on this.
+The last row of the table, before the *Sonify* button, allows the user to specify the location of the web server providing the sonification engine. You will likely not need to change this ever, unless you are developing your own additions to the engine. You can read the section about the program [architecture](#program-architecture) for information on this.
 
-Finally, click the *Sonify* button to access the [playback interface](#playback)!
+Finally, click the *Sonify* button to access the [playback interface](#the-playback-interface)!
 
-### The Key Algorithm-- Segmentation (#algorithm)
+### The Key Algorithm-- Segmentation
 
 How do we translate the data into sound? We could assign a note to each data point, but that would likely be very noisy, and not capture the trend of the data "as a whole". Instead, we break the data into chunks over time, and translate each chunk into a note. These chunks are called *segments*.
 
@@ -42,14 +42,14 @@ Each measurement function has its own effect on the resulting sound/effect:
 - **max** tends to exaggerate peaks in the data; you will hear higher pitches, volumes, etc. more often.
 - **length** focuses on the "noiseness" of the data, rather than the up/down movement; higher pitches, volumes, etc. are given to longer segments (typically that are smoother), whereas smaller segments tend to exist within higher-frequency cycles (typically noisier).
 
-### The Playback Interface (#playback)
+### The Playback Interface
 
 By now, you should see a line plot of the column(s) of data you selected. Clicking the *Play* button will begin playback of the sonification, highlighting the points that belong to the segment that created each currently-playing note. You can pause playback at the current note, or reset it to the beginning. You can also download the sonification as a MIDI (.mid) file for your own synthesizer. Finally, you can return to the first page to load a new dataset, or simply reconfigure the parameter mapping for the current dataset. 
 
-### Program Architecture (#architecture)
+### Program Architecture
 
 While not required to operate this program, an understanding of the program architecture might be interesting to you. The program exists in two entities, a sonification engine and a client-side program that interfaces with it. 
 
-The sonification engine is a Node.js server that provides a web API for client programs to use. In particular, client programs can make a POST request to the */sonify* endpoint, passing the parameter map (among other settings) and receiving back the sonification as a MIDI file. You can check out the API documentation and source code [here](https://github.com/thanasibakis/data2sound). The engine is an expansion of a 2015 paper by Last, M., & Usyskin, A., referenced in the documentation at that page.
+The sonification engine is a Node.js server that provides a web API for client programs to use. In particular, client programs can make a POST request to the */sonify* endpoint, passing the parameter map (among other settings) and receiving back the sonification as a MIDI file. You can check out the API documentation and source code [here](https://github.com/thanasibakis/data2sound). The engine is an implementation and expansion of a 2015 paper by Last, M., & Usyskin, A., referenced in the documentation at that page.
 
 The client-side program is a way for an end user to interface with the sonification engine. It connects to an instance of the engine running on Heroku, and visualizes the data as it translates each MIDI event to method calls to a Tone.js synth. It also allows the user to specify the URL of a different instance of the engine, typically for development/testing purposes (eg. pointing it to *http://localhost/sonify*). The source code for this client-side program is available [here](https://github.com/thanasibakis/CS190/tree/master/final-project), as a part of the repository for this entire website.
