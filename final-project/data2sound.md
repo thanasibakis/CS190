@@ -65,11 +65,12 @@ permalink: /data2sound
     <table><tr><td class="button-cell"><div id="load-demo-button">Load the demo dataset</div></td></tr></table>
   </div>
   <div id="file-configuration-section" class="flex-center" style="display: none">
-    <h4>Let's configure the program</h4>
+    <h4>Let's configure the program.</h4>
     <br/>
     <table id="file-configuration-table"></table>
   </div>
   <div id="results-section" class="flex-center" style="display: none">
+    <h4>Sonification playback</h4>
     <div style="padding: 30px 0; width: 600px">
       <canvas id="plot"></canvas>
     </div>
