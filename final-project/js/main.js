@@ -23,7 +23,7 @@
         This information is obtained by viewing the API documentation (or source code).
         For an understanding of these values, see the API documentation.
 */
-const DEFAULT_API_URL = "https://data2sound.herokuapp.com/sonify" // data2sound API location (if "localhost", it's the client machine)
+const DEFAULT_API_URL = "https://data2sound.thanasibakis.com/sonify" // data2sound API location (if "localhost", it's the client machine)
 const SUPPORTED_PARAMETERS = ["pitch", "volume", "pan"] // specified by the API
 const SUPPORTED_MEASUREMENT_TYPES =  ["mean", "min", "max", "length"]
 
